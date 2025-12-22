@@ -1,0 +1,6 @@
+{
+  "incomingPerHour": 120,
+  "processingCapacity": 90,
+  "currentBacklog": 300,
+  "slaLimitHours": 6
+}
