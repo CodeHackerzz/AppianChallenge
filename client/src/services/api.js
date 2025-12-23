@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://appian-mvp-backend.onrender.com";
 
 export const fetchDashboard = async () => {
   const res = await fetch(`${BASE_URL}/dashboard`);
