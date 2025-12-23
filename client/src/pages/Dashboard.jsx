@@ -1,39 +1,123 @@
-import KPI_Cards from "../components/KPI_Cards";
+import { useEffect, useState } from "react";
+import { fetchDashboard, fetchForecast, runWhatIf } from "../services/api";
 import ForecastChart from "../components/ForecastChart";
-import WhatIfPanel from "../components/WhatIfPanel";
-import RecommendationBox from "../components/RecommendationBox";
+import Recommendation from "../components/Recommendation";
 import DigitalTwin from "../components/DigitalTwin";
+import SmartAlert from "../components/SmartAlert";
+
+function timeToFailure(forecast) {
+  const critical = forecast.find(f => f.slaRisk >= 80);
+  return critical ? `${critical.hour} hrs` : "Safe";
+}
 
 export default function Dashboard() {
+  const [dashboard, setDashboard] = useState({});
+  const [forecast, setForecast] = useState([]);
+  const [beforeForecast, setBeforeForecast] = useState([]);
+  const [workers, setWorkers] = useState(2);
+
+  useEffect(() => {
+    fetchDashboard().then(setDashboard);
+    fetchForecast().then(data => {
+      setForecast(data);
+      setBeforeForecast(data);
+    });
+  }, []);
+
+  const simulate = async () => {
+    const data = await runWhatIf(workers);
+    setForecast(data);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-black text-white">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 to-slate-900 text-white p-8">
 
-      {/* HEADER */}
-      <header className="sticky top-0 z-50 backdrop-blur-lg bg-black/40 border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-5 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">
-            Appian Operations Center
-          </h1>
-          <span className="text-sm text-gray-400">
-            Predictive Process Simulation
-          </span>
-        </div>
-      </header>
+      <h1 className="text-4xl font-bold mb-2">
+        Predictive Operations Center
+      </h1>
+      <p className="text-slate-400 mb-10">
+        Decision intelligence for SLA-critical operations
+      </p>
 
-      {/* MAIN CONTENT */}
-      <main className="max-w-7xl mx-auto px-6 py-10 space-y-10">
-        <KPI_Cards />
-
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-          <ForecastChart />
-          <WhatIfPanel />
+      {/* KPI SECTION */}
+      <div className="grid md:grid-cols-4 gap-6 mb-10">
+        <div className="bg-white/10 p-6 rounded-xl">
+          <p className="text-sm">Current Backlog</p>
+          <p className="text-3xl font-bold">{dashboard.currentCases}</p>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-          <RecommendationBox />
-          <DigitalTwin />
+        <div className="bg-white/10 p-6 rounded-xl border border-rose-500/40">
+          <p className="text-sm">SLA Status</p>
+          <p className="text-3xl font-bold text-rose-400">
+            {dashboard.slaAtRisk ? "AT RISK" : "STABLE"}
+          </p>
         </div>
-      </main>
+
+        <div className="bg-white/10 p-6 rounded-xl">
+          <p className="text-sm">Predicted Breach</p>
+          <p className="text-xl font-semibold text-amber-400">
+            85% in 4 hrs
+          </p>
+        </div>
+
+        <div className="bg-white/10 p-6 rounded-xl border border-amber-400/40">
+          <p className="text-sm">Time to Failure</p>
+          <p className="text-3xl font-bold text-amber-400">
+            {timeToFailure(forecast)}
+          </p>
+        </div>
+      </div>
+
+      {/* FORECAST + WHAT IF */}
+      <div className="grid lg:grid-cols-2 gap-6 mb-10">
+        <ForecastChart data={forecast} />
+
+        <div className="bg-white/10 p-6 rounded-xl">
+          <h3 className="font-semibold mb-2">What-If Simulation</h3>
+          <input
+            type="range"
+            min="0"
+            max="5"
+            value={workers}
+            onChange={(e) => setWorkers(e.target.value)}
+            className="w-full"
+          />
+          <p className="mt-2">{workers} reviewers reallocated</p>
+
+          <button
+            onClick={simulate}
+            className="mt-4 w-full py-2 rounded bg-gradient-to-r from-emerald-400 to-cyan-500 text-black font-semibold"
+          >
+            Run Simulation
+          </button>
+        </div>
+      </div>
+
+      {/* BEFORE vs AFTER */}
+      <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="bg-white/10 p-5 rounded-xl border border-rose-500/40">
+          <h4 className="text-rose-300 font-semibold mb-2">Before</h4>
+          <p>SLA Risk: {beforeForecast.at(-1)?.slaRisk}%</p>
+          <p>Backlog: {beforeForecast.at(-1)?.backlog}</p>
+        </div>
+
+        <div className="bg-white/10 p-5 rounded-xl border border-emerald-500/40">
+          <h4 className="text-emerald-300 font-semibold mb-2">After</h4>
+          <p>SLA Risk: {forecast.at(-1)?.slaRisk}%</p>
+          <p>Backlog: {forecast.at(-1)?.backlog}</p>
+        </div>
+      </div>
+
+      <SmartAlert
+        before={beforeForecast.at(-1)}
+        after={forecast.at(-1)}
+      />
+
+      <Recommendation before={80} after={15} />
+
+      <div className="mt-8">
+        <DigitalTwin />
+      </div>
     </div>
   );
 }
