@@ -7,21 +7,21 @@ export default function DigitalTwin() {
 
       <div className="grid grid-cols-3 gap-6 text-center">
 
-        {/* Intake */}
+        {}
         <div className="border border-slate-600 rounded-lg p-4">
           <p className="text-xs text-slate-400">INTAKE</p>
           <p className="text-2xl font-bold mt-1">120</p>
           <p className="text-xs text-emerald-400 mt-1">Normal Load</p>
         </div>
 
-        {/* Review */}
+        {}
         <div className="border border-rose-500/50 bg-rose-500/20 rounded-lg p-4">
           <p className="text-xs">REVIEW</p>
           <p className="text-2xl font-bold mt-1">300</p>
           <p className="text-xs text-rose-300 mt-1">Bottleneck</p>
         </div>
 
-        {/* Approval */}
+        {}
         <div className="border border-slate-600 rounded-lg p-4">
           <p className="text-xs text-slate-400">APPROVAL</p>
           <p className="text-2xl font-bold mt-1">80</p>
