@@ -1,123 +1,126 @@
 import { useEffect, useState } from "react";
-import { fetchDashboard, fetchForecast, runWhatIf } from "../services/api";
-import ForecastChart from "../components/ForecastChart";
-import Recommendation from "../components/Recommendation";
-import DigitalTwin from "../components/DigitalTwin";
-import SmartAlert from "../components/SmartAlert";
+import {
+  fetchDashboard,
+  fetchForecast,
+  runWhatIf
+} from "../services/api";
 
-function timeToFailure(forecast) {
-  const critical = forecast.find(f => f.slaRisk >= 80);
+import ForecastChart from "../components/ForecastChart";
+import WhatIfPanel from "../components/WhatIfPanel";
+import Recommendation from "../components/Recommendation";
+import SmartAlert from "../components/SmartAlert";
+import DigitalTwin from "../components/DigitalTwin";
+
+// ⏱️ Time-to-Failure logic
+function calculateTimeToFailure(forecast) {
+  const critical = forecast.find((f) => f.slaRisk >= 80);
   return critical ? `${critical.hour} hrs` : "Safe";
 }
 
 export default function Dashboard() {
   const [dashboard, setDashboard] = useState({});
   const [forecast, setForecast] = useState([]);
-  const [beforeForecast, setBeforeForecast] = useState([]);
-  const [workers, setWorkers] = useState(2);
+  const [baselineForecast, setBaselineForecast] = useState([]);
 
   useEffect(() => {
     fetchDashboard().then(setDashboard);
-    fetchForecast().then(data => {
+
+    fetchForecast().then((data) => {
       setForecast(data);
-      setBeforeForecast(data);
+      setBaselineForecast(data); // store BEFORE state
     });
   }, []);
 
-  const simulate = async () => {
-    const data = await runWhatIf(workers);
-    setForecast(data);
+  // 🔥 What-If Simulation handler
+  const handleSimulation = async (reviewersMoved) => {
+    const simulatedData = await runWhatIf(reviewersMoved);
+    setForecast(simulatedData); // updates graph + metrics
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 to-slate-900 text-white p-8">
 
-      <h1 className="text-4xl font-bold mb-2">
-        Predictive Operations Center
-      </h1>
-      <p className="text-slate-400 mb-10">
-        Decision intelligence for SLA-critical operations
-      </p>
+      {/* HEADER */}
+      <div className="mb-10">
+        <h1 className="text-4xl font-bold mb-1">
+          Predictive Operations Center
+        </h1>
+        <p className="text-slate-400">
+          Proactive SLA risk forecasting & decision intelligence
+        </p>
+      </div>
 
-      {/* KPI SECTION */}
+      {/* KPI CARDS */}
       <div className="grid md:grid-cols-4 gap-6 mb-10">
         <div className="bg-white/10 p-6 rounded-xl">
-          <p className="text-sm">Current Backlog</p>
-          <p className="text-3xl font-bold">{dashboard.currentCases}</p>
+          <p className="text-sm text-slate-400">Current Backlog</p>
+          <p className="text-3xl font-bold">
+            {dashboard.currentCases}
+          </p>
         </div>
 
         <div className="bg-white/10 p-6 rounded-xl border border-rose-500/40">
-          <p className="text-sm">SLA Status</p>
-          <p className="text-3xl font-bold text-rose-400">
-            {dashboard.slaAtRisk ? "AT RISK" : "STABLE"}
+          <p className="text-sm text-slate-400">SLA Status</p>
+          <p className="text-2xl font-bold text-rose-400">
+            {dashboard.slaAtRisk ? "At Risk" : "Stable"}
           </p>
         </div>
 
         <div className="bg-white/10 p-6 rounded-xl">
-          <p className="text-sm">Predicted Breach</p>
-          <p className="text-xl font-semibold text-amber-400">
+          <p className="text-sm text-slate-400">Predicted Breach</p>
+          <p className="text-lg font-semibold text-amber-400">
             85% in 4 hrs
           </p>
         </div>
 
         <div className="bg-white/10 p-6 rounded-xl border border-amber-400/40">
-          <p className="text-sm">Time to Failure</p>
+          <p className="text-sm text-slate-400">Time to Failure</p>
           <p className="text-3xl font-bold text-amber-400">
-            {timeToFailure(forecast)}
+            {calculateTimeToFailure(forecast)}
           </p>
         </div>
       </div>
 
-      {/* FORECAST + WHAT IF */}
-      <div className="grid lg:grid-cols-2 gap-6 mb-10">
+      {/* GRAPH + WHAT-IF */}
+      <div className="grid lg:grid-cols-2 gap-8 mb-10">
         <ForecastChart data={forecast} />
 
-        <div className="bg-white/10 p-6 rounded-xl">
-          <h3 className="font-semibold mb-2">What-If Simulation</h3>
-          <input
-            type="range"
-            min="0"
-            max="5"
-            value={workers}
-            onChange={(e) => setWorkers(e.target.value)}
-            className="w-full"
-          />
-          <p className="mt-2">{workers} reviewers reallocated</p>
-
-          <button
-            onClick={simulate}
-            className="mt-4 w-full py-2 rounded bg-gradient-to-r from-emerald-400 to-cyan-500 text-black font-semibold"
-          >
-            Run Simulation
-          </button>
-        </div>
+        <WhatIfPanel onSimulate={handleSimulation} />
       </div>
 
       {/* BEFORE vs AFTER */}
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <div className="bg-white/10 p-5 rounded-xl border border-rose-500/40">
-          <h4 className="text-rose-300 font-semibold mb-2">Before</h4>
-          <p>SLA Risk: {beforeForecast.at(-1)?.slaRisk}%</p>
-          <p>Backlog: {beforeForecast.at(-1)?.backlog}</p>
+          <h4 className="font-semibold text-rose-300 mb-2">
+            Before Action
+          </h4>
+          <p>SLA Risk: {baselineForecast.at(-1)?.slaRisk}%</p>
+          <p>Backlog: {baselineForecast.at(-1)?.backlog}</p>
         </div>
 
         <div className="bg-white/10 p-5 rounded-xl border border-emerald-500/40">
-          <h4 className="text-emerald-300 font-semibold mb-2">After</h4>
+          <h4 className="font-semibold text-emerald-300 mb-2">
+            After Action
+          </h4>
           <p>SLA Risk: {forecast.at(-1)?.slaRisk}%</p>
           <p>Backlog: {forecast.at(-1)?.backlog}</p>
         </div>
       </div>
 
+      {/* SMART ALERT */}
       <SmartAlert
-        before={beforeForecast.at(-1)}
+        before={baselineForecast.at(-1)}
         after={forecast.at(-1)}
       />
 
-      <Recommendation before={80} after={15} />
-
-      <div className="mt-8">
-        <DigitalTwin />
+      {/* RECOMMENDATION */}
+      <div className="my-8">
+        <Recommendation before={80} after={15} />
       </div>
+
+      {/* DIGITAL TWIN */}
+      <DigitalTwin />
+
     </div>
   );
 }
