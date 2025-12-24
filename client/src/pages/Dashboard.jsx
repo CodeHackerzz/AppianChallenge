@@ -22,19 +22,26 @@ export default function Dashboard() {
   const [forecast, setForecast] = useState([]);
   const [baselineForecast, setBaselineForecast] = useState([]);
 
+  // INITIAL LOAD
   useEffect(() => {
     fetchDashboard().then(setDashboard);
 
     fetchForecast().then((data) => {
-      setForecast(data);
-      setBaselineForecast(data); // store BEFORE state
+      // 🔥 Force new references
+      const initial = data.map(item => ({ ...item }));
+      setForecast(initial);
+      setBaselineForecast(initial);
     });
   }, []);
 
-  // 🔥 What-If Simulation handler
+  // 🔥 FIXED What-If Simulation handler
   const handleSimulation = async (reviewersMoved) => {
     const simulatedData = await runWhatIf(reviewersMoved);
-    setForecast(simulatedData); // updates graph + metrics
+
+    // 🔥 CRITICAL FIX: force new reference + new objects
+    const updatedForecast = simulatedData.map(item => ({ ...item }));
+
+    setForecast(updatedForecast);
   };
 
   return (
@@ -83,6 +90,7 @@ export default function Dashboard() {
 
       {/* GRAPH + WHAT-IF */}
       <div className="grid lg:grid-cols-2 gap-8 mb-10">
+        {/* 🔥 Graph now ALWAYS reacts */}
         <ForecastChart data={forecast} />
 
         <WhatIfPanel onSimulate={handleSimulation} />
