@@ -13,13 +13,13 @@ import {
 } from "recharts";
 
 export default function ForecastChart({ data }) {
-  // Simulated "before" values for comparison
+  
   const beforeData = data.map(d => ({
     ...d,
     slaRiskBefore: d.slaRisk + 20 > 100 ? 100 : d.slaRisk + 20
   }));
 
-  // Find predicted breach point
+  
   const breachPoint = data.find(d => d.slaRisk >= 80);
 
   return (
@@ -33,12 +33,12 @@ export default function ForecastChart({ data }) {
 
       <ResponsiveContainer width="100%" height={320}>
         <LineChart data={beforeData}>
-          {/* SLA Risk Zones */}
+          {}
           <ReferenceArea y1={0} y2={50} fill="#22c55e" fillOpacity={0.12} />
           <ReferenceArea y1={50} y2={80} fill="#facc15" fillOpacity={0.12} />
           <ReferenceArea y1={80} y2={100} fill="#ef4444" fillOpacity={0.12} />
 
-          {/* SLA Limit Line */}
+          {}
           <ReferenceLine
             y={80}
             stroke="#ef4444"
@@ -76,7 +76,7 @@ export default function ForecastChart({ data }) {
 
           <Legend />
 
-          {/* BEFORE (dashed) */}
+          {}
           <Line
             type="monotone"
             dataKey="slaRiskBefore"
@@ -86,7 +86,7 @@ export default function ForecastChart({ data }) {
             dot={false}
           />
 
-          {/* AFTER (solid) */}
+          {}
           <Line
             type="monotone"
             dataKey="slaRisk"
@@ -96,7 +96,7 @@ export default function ForecastChart({ data }) {
             dot={{ r: 3 }}
           />
 
-          {/* Predicted Breach Marker */}
+          {}
           {breachPoint && (
             <ReferenceDot
               x={breachPoint.hour}
@@ -115,7 +115,7 @@ export default function ForecastChart({ data }) {
         </LineChart>
       </ResponsiveContainer>
 
-      {/* Legend explanation */}
+      {}
       <div className="flex justify-between text-xs text-slate-400 mt-4">
         <span>🟢 Safe</span>
         <span>🟡 Watch</span>
