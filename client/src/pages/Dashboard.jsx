@@ -11,7 +11,7 @@ import Recommendation from "../components/Recommendation";
 import SmartAlert from "../components/SmartAlert";
 import DigitalTwin from "../components/DigitalTwin";
 
-// ⏱️ Time-to-Failure logic
+
 function calculateTimeToFailure(forecast) {
   const critical = forecast.find((f) => f.slaRisk >= 80);
   return critical ? `${critical.hour} hrs` : "Safe";
@@ -22,23 +22,23 @@ export default function Dashboard() {
   const [forecast, setForecast] = useState([]);
   const [baselineForecast, setBaselineForecast] = useState([]);
 
-  // INITIAL LOAD
+  
   useEffect(() => {
     fetchDashboard().then(setDashboard);
 
     fetchForecast().then((data) => {
-      // 🔥 Force new references
+      
       const initial = data.map(item => ({ ...item }));
       setForecast(initial);
       setBaselineForecast(initial);
     });
   }, []);
 
-  // 🔥 FIXED What-If Simulation handler
+  
   const handleSimulation = async (reviewersMoved) => {
     const simulatedData = await runWhatIf(reviewersMoved);
 
-    // 🔥 CRITICAL FIX: force new reference + new objects
+    
     const updatedForecast = simulatedData.map(item => ({ ...item }));
 
     setForecast(updatedForecast);
@@ -47,7 +47,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 to-slate-900 text-white p-8">
 
-      {/* HEADER */}
+      {}
       <div className="mb-10">
         <h1 className="text-4xl font-bold mb-1">
           Predictive Operations Center
@@ -57,7 +57,7 @@ export default function Dashboard() {
         </p>
       </div>
 
-      {/* KPI CARDS */}
+      {}
       <div className="grid md:grid-cols-4 gap-6 mb-10">
         <div className="bg-white/10 p-6 rounded-xl">
           <p className="text-sm text-slate-400">Current Backlog</p>
@@ -88,15 +88,15 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* GRAPH + WHAT-IF */}
+      {}
       <div className="grid lg:grid-cols-2 gap-8 mb-10">
-        {/* 🔥 Graph now ALWAYS reacts */}
+        {}
         <ForecastChart data={forecast} />
 
         <WhatIfPanel onSimulate={handleSimulation} />
       </div>
 
-      {/* BEFORE vs AFTER */}
+      {}
       <div className="grid md:grid-cols-2 gap-6 mb-8">
         <div className="bg-white/10 p-5 rounded-xl border border-rose-500/40">
           <h4 className="font-semibold text-rose-300 mb-2">
@@ -115,18 +115,18 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* SMART ALERT */}
+      {}
       <SmartAlert
         before={baselineForecast.at(-1)}
         after={forecast.at(-1)}
       />
 
-      {/* RECOMMENDATION */}
+      {}
       <div className="my-8">
         <Recommendation before={80} after={15} />
       </div>
 
-      {/* DIGITAL TWIN */}
+      {}
       <DigitalTwin />
 
     </div>
