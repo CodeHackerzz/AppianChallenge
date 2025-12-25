@@ -6,7 +6,7 @@ export default function WhatIfPanel({ onSimulate }) {
 
   const handleChange = (value) => {
     setReviewers(value);
-    // simulate preview impact (UI-only intelligence)
+    
     setPreviewRisk(85 - value * 10);
   };
 
@@ -19,7 +19,7 @@ export default function WhatIfPanel({ onSimulate }) {
         Test workforce changes before applying them to live operations
       </p>
 
-      {/* DECISION CARD */}
+      {}
       <div className="border border-slate-600 rounded-lg p-4 mb-5">
         <p className="text-sm text-slate-300 mb-2">
           Reallocate Reviewers
@@ -44,7 +44,7 @@ export default function WhatIfPanel({ onSimulate }) {
         />
       </div>
 
-      {/* IMPACT PREVIEW */}
+      {}
       <div className="bg-black/30 rounded-lg p-4 mb-5">
         <p className="text-xs text-slate-400 mb-2">
           Predicted Impact (Preview)
@@ -65,7 +65,7 @@ export default function WhatIfPanel({ onSimulate }) {
           </span>
         </div>
 
-        {/* Risk meter */}
+        {}
         <div className="h-2 bg-slate-700 rounded-full overflow-hidden mt-3">
           <div
             className={`h-full ${
@@ -80,13 +80,13 @@ export default function WhatIfPanel({ onSimulate }) {
         </div>
       </div>
 
-      {/* WHY THIS WORKS */}
+      {}
       <div className="text-xs text-slate-300 mb-4">
         💡 Increasing reviewer capacity reduces backlog accumulation and
         stabilizes SLA compliance.
       </div>
 
-      {/* RUN SIMULATION */}
+      {}
       <button
         onClick={() => onSimulate(reviewers)}
         className="w-full py-3 rounded-lg bg-gradient-to-r from-cyan-400 to-emerald-400 text-black font-semibold hover:scale-[1.02] transition"
